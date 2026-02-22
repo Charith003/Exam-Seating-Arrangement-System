@@ -1,0 +1,196 @@
+-- Step 1: Create the database if not exists
+CREATE DATABASE IF NOT EXISTS exam_system;  
+-- Purpose: Create the database 'exam_system' if it does not already exist.
+
+-- Step 2: Use the created database
+USE exam_system;  
+-- Purpose: Switch to the 'exam_system' database for further operations.
+
+-- Step 3: Create students table
+CREATE TABLE IF NOT EXISTS students (
+    roll_number VARCHAR(20) PRIMARY KEY,  
+    first_name VARCHAR(100) NOT NULL,     
+    last_name VARCHAR(100) NOT NULL       
+);  
+-- Purpose: Create the 'students' table with columns for roll number, first name, and last name.
+
+-- Step 4: Create rooms table
+CREATE TABLE IF NOT EXISTS rooms (
+    room_number VARCHAR(20) PRIMARY KEY,  
+    capacity INT NOT NULL                 
+);  
+-- Purpose: Create the 'rooms' table with columns for room number and capacity.
+
+-- Step 5: Create seating arrangements table
+CREATE TABLE IF NOT EXISTS seating_arrangements (
+    student_id VARCHAR(20),               
+    room_number VARCHAR(20),              
+    seat_number INT,                      
+    PRIMARY KEY (student_id, room_number, seat_number),  
+    FOREIGN KEY (student_id) REFERENCES students(roll_number) ON DELETE CASCADE,  
+    FOREIGN KEY (room_number) REFERENCES rooms(room_number) ON DELETE CASCADE    
+);  
+-- Purpose: Create the 'seating_arrangements' table with foreign key references to students and rooms.
+
+-- Step 6: Insert data into students table
+INSERT INTO students (roll_number, first_name, last_name) VALUES
+    ('S001', 'John', 'Doe'),                
+    ('S002', 'Jane', 'Smith'),              
+    ('S003', 'Alice', 'Johnson'), 
+    ('S004', 'David', 'Brown'), 
+    ('S005', 'Eva', 'Davis');              
+-- Purpose: Insert student data into the 'students' table.
+
+-- Step 7: Insert data into rooms table
+INSERT INTO rooms (room_number, capacity) VALUES
+    ('R101', 50),                            
+    ('R102', 30),                            
+    ('R103', 40);                            
+-- Purpose: Insert room data into the 'rooms' table.
+
+-- Step 8: Insert seating arrangements for each student
+INSERT INTO seating_arrangements (student_id, room_number, seat_number) VALUES
+    ('S001', 'R101', 1),                    
+    ('S002', 'R101', 2),
+    ('S003', 'R102', 1),                    
+    ('S004', 'R103', 1),                    
+    ('S005', 'R103', 2);                    
+-- Purpose: Insert seating arrangements for students into the 'seating_arrangements' table.
+
+-- Step 9: View rooms table to check data
+SELECT * FROM rooms;  
+-- Purpose: View all room data to ensure correct insertion.
+
+-- Step 10: View seating arrangements after insertion
+SELECT * FROM seating_arrangements;  
+-- Purpose: View all seating arrangements to ensure correct data is inserted.
+
+-- Step 11: Update seating arrangements (if necessary)
+UPDATE seating_arrangements
+    SET seat_number = 1
+    WHERE student_id = 'S001' AND room_number = 'R101';  
+-- Purpose: Update seat number for a specific student in a room.
+
+-- Step 12: Delete seating arrangements for specific students
+DELETE FROM seating_arrangements WHERE student_id IN ('S001', 'S002');  
+-- Purpose: Delete seating arrangements for students 'S001' and 'S002'.
+
+-- Step 13: Reinsert seating arrangements after deletion
+INSERT INTO seating_arrangements (student_id, room_number, seat_number) VALUES
+    ('S001', 'R101', 1),  
+    ('S002', 'R102', 2);  
+-- Purpose: Reinsert seating arrangements after clearing previous entries.
+
+-- Step 14: Insert seating arrangements using `INSERT IGNORE` to prevent duplicates
+INSERT IGNORE INTO seating_arrangements (student_id, room_number, seat_number) VALUES
+    ('S001', 'R101', 1),                    
+    ('S002', 'R102', 2);                    
+-- Purpose: Insert seating arrangements and ignore duplicates.
+
+-- Step 15: Insert data into rooms table (checking for uniqueness)
+INSERT IGNORE INTO rooms (room_number, capacity) VALUES
+    ('R101', 50),                            
+    ('R102', 30),                            
+    ('R103', 40);                            
+-- Purpose: Insert data into 'rooms' again, ignoring duplicates.
+
+-- Step 16: Alter the 'students' table to add a new column 'name'
+ALTER TABLE students ADD COLUMN name VARCHAR(255);  
+-- Purpose: Add a new column 'name' to the 'students' table.
+
+-- Step 17: Drop 'seating_arrangements' table if it exists
+DROP TABLE IF EXISTS seating_arrangements;  
+-- Purpose: Drop the 'seating_arrangements' table if it already exists.
+
+-- Step 18: Drop 'rooms' table if it exists
+DROP TABLE IF EXISTS rooms;  
+-- Purpose: Drop the 'rooms' table if it already exists.
+
+-- Step 19: Recreate 'rooms' table
+CREATE TABLE IF NOT EXISTS rooms (
+    room_number VARCHAR(20) PRIMARY KEY,  
+    capacity INT NOT NULL                 
+);  
+-- Purpose: Recreate the 'rooms' table with the correct structure.
+
+-- Step 20: Recreate 'seating_arrangements' table with correct foreign key references
+CREATE TABLE IF NOT EXISTS seating_arrangements (
+    student_id VARCHAR(20),               
+    room_number VARCHAR(20),              
+    seat_number INT,                      
+    PRIMARY KEY (student_id, room_number, seat_number),  
+    FOREIGN KEY (student_id) REFERENCES students(roll_number) ON DELETE CASCADE,  
+    FOREIGN KEY (room_number) REFERENCES rooms(room_number) ON DELETE CASCADE    
+);  
+-- Purpose: Recreate the 'seating_arrangements' table with proper foreign key references.
+
+-- Step 21: Reinsert data into students table
+INSERT INTO students (roll_number, first_name, last_name) VALUES
+    ('S001', 'John', 'Doe'),                
+    ('S002', 'Jane', 'Smith');              
+-- Purpose: Reinsert student data again into the 'students' table.
+
+-- Step 22: Reinsert data into rooms table
+INSERT INTO rooms (room_number, capacity) VALUES
+    ('R101', 50),                            
+    ('R102', 30),                            
+    ('R103', 40);                            
+-- Purpose: Reinsert room data again into the 'rooms' table.
+
+-- Step 23: Reinsert seating arrangements for students
+INSERT INTO seating_arrangements (student_id, room_number, seat_number) VALUES
+    ('S001', 'R101', 1),                    
+    ('S002', 'R102', 2);                    
+-- Purpose: Reinsert seating arrangements for students.
+
+-- Step 24: Join 'seating_arrangements' and 'students' to get seating details
+SELECT
+    sa.student_id,
+    CONCAT(s.first_name, ' ', s.last_name) AS full_name,  
+    sa.room_number,
+    sa.seat_number
+FROM
+    seating_arrangements sa
+JOIN
+    students s ON sa.student_id = s.roll_number
+WHERE
+    sa.room_number IN ('R101', 'R102');  
+-- Purpose: Join seating arrangements with student details to show seating information.
+
+-- Step 25: View students table
+SELECT * FROM students;  
+-- Purpose: View all students in the table.
+
+-- Step 26: Show structure of 'students' table to verify columns
+DESCRIBE students;  
+-- Purpose: Display the structure (columns) of the 'students' table.
+
+-- Step 27: Show columns from the 'students' table to confirm structure
+SHOW COLUMNS FROM students;  
+-- Purpose: Verify the columns of the 'students' table.
+
+-- Step 28: Attempt invalid Java-like code in SQL (will cause syntax error)
+-- The following is an example of what would cause an error, but it's not a valid SQL command.
+-- studentList.append("Roll Number: ").append(rs.getString("roll_number"));  
+-- Purpose: Invalid Java syntax in MySQL.
+
+-- Step 29: Corrected valid SQL to update room names
+UPDATE rooms 
+    SET room_number = 'Updated Room A' 
+    WHERE room_number = 'R101';  
+-- Purpose: Update room name correctly using SQL.
+
+-- Step 30: Corrected valid SQL for full name concatenation in SELECT statement
+SELECT
+    sa.student_id,
+    CONCAT(s.first_name, ' ', s.last_name) AS full_name,  
+    sa.room_number,
+    sa.seat_number
+FROM
+    seating_arrangements sa
+JOIN
+    students s ON sa.student_id = s.roll_number
+WHERE
+    sa.room_number IN ('R101', 'R102');  
+-- Purpose: Correct SQL query to get full name by concatenating first and last names.
+....
